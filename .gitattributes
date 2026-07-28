@@ -1,0 +1,19 @@
+# Keep text files stable across Windows, WSL, and Linux environments.
+* text=auto eol=lf
+
+# Preserve binary microscopy and model artifacts if they are intentionally
+# versioned in a future lightweight release.
+*.npy binary
+*.npz binary
+*.tif binary
+*.tiff binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.pptx binary
+*.xlsx binary
+*.bin binary
+*.pt binary
+*.pth binary
+*.ckpt binary

@@ -1,0 +1,60 @@
+# Pre-trained model weights and downloaded assets (do not version large or
+# redistribution-restricted artifacts; record their provenance in
+# DATA_AND_MODELS.md instead).
+pretrained_weights/
+example/checkpoints/
+example/data/
+example/image retrival/database.npy
+*.pth
+*.ckpt
+*.pt
+*.bin
+
+# 数据
+data/
+
+# 实验结果
+experiments/
+outputs/
+results/
+runs/
+wandb/
+
+# Jupyter Notebook 缓存
+notebooks/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+*.egg
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志
+*.log
+
+# example
+example/
+example.tar
+
+# Local cloud-operation helpers may contain machine-specific connection details.
+# Keep credentials in a user-managed secret store, never in this repository.
+scripts/_ssh_*.py

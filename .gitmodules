@@ -1,0 +1,6 @@
+[submodule "repos/fluoresfm"]
+	path = repos/fluoresfm
+	url = https://github.com/qiqi-lu/fluoresfm.git
+[submodule "repos/napari-fluoresfm"]
+	path = repos/napari-fluoresfm
+	url = https://github.com/qiqi-lu/napari-fluoresfm.git

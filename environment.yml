@@ -1,0 +1,42 @@
+# FluoResFM 环境配置
+# 使用方式: conda env create -f environment.yml
+name: fluoresfm
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - nodefaults
+dependencies:
+  # Python 版本锁定
+  - python=3.11.9
+
+  # PyTorch 2.6.0 + CUDA 12.4
+  # 注意: 实际通过 pip 安装 PyTorch 官方 CUDA 12.4 wheel
+  # pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
+
+  # 数据处理
+  - numpy
+  - pandas
+  - scipy
+  - scikit-image
+  - tifffile
+  - openpyxl
+  - pydicom
+
+  # 可视化 & 日志
+  - matplotlib
+  - seaborn
+  - tensorboard
+  - tqdm
+
+  # HuggingFace 生态（BiomedCLIP 需要）
+  - transformers
+  - huggingface_hub
+
+  # pip 安装的包（open_clip_torch / flash-attn 等在 conda 源里没有）
+  - pip
+  - pip:
+    - open_clip_torch
+    - flash-attn
+    - cellpose
+    - nellie

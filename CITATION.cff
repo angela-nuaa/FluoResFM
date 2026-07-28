@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use FluoResFM in academic work, please cite the original article."
+title: "FluoResFM learning and reproduction environment"
+type: software
+authors:
+  - family-names: Lu
+    given-names: Qiqi
+  - family-names: Liu
+    given-names: Xiuli
+  - family-names: Feng
+    given-names: Qianjin
+  - family-names: Zeng
+    given-names: Shaoqun
+  - family-names: Cheng
+    given-names: Shenghua
+preferred-citation:
+  type: article
+  title: "A foundation model for multi-task cross-distribution restoration of fluorescence microscopy images"
+  authors:
+    - family-names: Lu
+      given-names: Qiqi
+    - family-names: Liu
+      given-names: Xiuli
+    - family-names: Feng
+      given-names: Qianjin
+    - family-names: Zeng
+      given-names: Shaoqun
+    - family-names: Cheng
+      given-names: Shenghua
+  journal: "Nature Communications"
+  date-published: 2026-03-10
+  doi: 10.1038/s41467-026-70307-4
+  url: "https://doi.org/10.1038/s41467-026-70307-4"
