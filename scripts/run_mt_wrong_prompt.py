@@ -14,19 +14,11 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
-def git_revision(repo: Path) -> str | None:
-    try:
-        return subprocess.check_output(
-            ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return None
+from run_provenance import provenance, write_run_md
 
 
 # Canonical prompt is built from the wf_to_sim_2x protocol, matching
@@ -155,16 +147,24 @@ def main() -> None:
             "07_wrong_imaging": "target microscope → wide-field microscope (SIM → wide-field). "
             "NA values unchanged; not editing task or scale factor.",
         },
-        "root_commit": git_revision(root),
-        "napari_fluoresfm_commit": git_revision(root / "repos" / "napari-fluoresfm"),
-        "fluoresfm_commit": git_revision(root / "repos" / "fluoresfm"),
         "parameters": {key: str(value) for key, value in common.items()},
         "conditions": {**existing_conditions, **CONDITIONS},
         "baseline_dir": "experiments/mt_field_ablation/20260728_canonical_text_full15",
         "scope": "15 test images × 3 wrong-prompt conditions = 45 predictions. "
         "Comparison against the 01_full condition from the P1 baseline run.",
+        "provenance": provenance(
+            root=root,
+            script=Path(__file__),
+            assets={
+                "input_index": source_index,
+                "checkpoint": common["path_checkpoint"],
+                "canonical_prompt": canonical_path,
+            },
+            parameters=common,
+        ),
     }
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    write_run_md(runs_dir / "run.md", manifest)
 
     for name, text in CONDITIONS.items():
         output = runs_dir / name

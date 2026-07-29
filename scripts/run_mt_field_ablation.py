@@ -12,19 +12,11 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
-def git_revision(repo: Path) -> str | None:
-    try:
-        return subprocess.check_output(
-            ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return None
+from run_provenance import provenance, write_run_md
 
 
 PROTOCOLS = {
@@ -161,14 +153,22 @@ def main() -> None:
         "protocol": args.protocol,
         "protocol_source": protocol["source"],
         "prompt_source": "example/data/text/train/dataset_text_ALL.txt for wf_to_sim_2x; field-deletion conditions omit exactly one field.",
-        "root_commit": git_revision(root),
-        "napari_fluoresfm_commit": git_revision(root / "repos" / "napari-fluoresfm"),
-        "fluoresfm_commit": git_revision(root / "repos" / "fluoresfm"),
         "parameters": {key: str(value) for key, value in common.items()},
         "conditions": {**existing_conditions, **conditions},
         "scope": protocol["scope"],
+        "provenance": provenance(
+            root=root,
+            script=Path(__file__),
+            assets={
+                "input_index": input_index,
+                "checkpoint": common["path_checkpoint"],
+                "canonical_prompt": root / "example" / "data" / "text" / "train" / "dataset_text_ALL.txt",
+            },
+            parameters=common,
+        ),
     }
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    write_run_md(runs_dir / "run.md", manifest)
 
     for name, text in conditions.items():
         output = runs_dir / name

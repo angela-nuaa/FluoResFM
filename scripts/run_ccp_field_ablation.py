@@ -12,17 +12,11 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
-def git_revision(repo: Path) -> str | None:
-    try:
-        return subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return None
+from run_provenance import provenance, write_run_md
 
 
 def prompt(*, task: bool = True, structure: bool = True, imaging: bool = True) -> str:
@@ -124,16 +118,24 @@ def main() -> None:
     manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "dataset": "BioTISR_CCP",
-        "root_commit": git_revision(root),
-        "napari_fluoresfm_commit": git_revision(root / "repos" / "napari-fluoresfm"),
-        "fluoresfm_commit": git_revision(root / "repos" / "fluoresfm"),
         "parameters": {key: str(value) for key, value in common.items()},
         "conditions": {**existing_conditions, **conditions},
         "scope": "Controlled prompt screen on bundled BioTISR_CCP training-directory samples; not a held-out evaluation.",
         "prompt_source": "Task and field values follow the BioTISR_CCP super-resolution row in example/data/finetune.xlsx; each non-full condition deletes one semantic field.",
         "input_variant_note": "WF_noise_level_2 is retained for comparability with the prior CCP screen. The workbook row names cropped WF_noise_level_0_0 training patches, so this is not an exact path-level reproduction of that row.",
+        "provenance": provenance(
+            root=root,
+            script=Path(__file__),
+            assets={
+                "input_index": input_index,
+                "checkpoint": common["path_checkpoint"],
+                "canonical_prompt": root / "example" / "data" / "text" / "finetune" / "dataset_text_ALL.txt",
+            },
+            parameters=common,
+        ),
     }
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    write_run_md(runs_dir / "run.md", manifest)
 
     for name, text in conditions.items():
         output = runs_dir / name

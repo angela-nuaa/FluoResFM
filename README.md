@@ -6,7 +6,12 @@
 
 - 原论文：[Lu et al., *Nature Communications* (2026)](https://doi.org/10.1038/s41467-026-70307-4)
 - 上游实现：[qiqi-lu/fluoresfm](https://github.com/qiqi-lu/fluoresfm)
-- 本仓库的范围、结果与限制：[实验结果与边界](docs/实验结果与边界.md)
+- 文档入口与当前状态：[文档索引](docs/README.md) · [当前进度](docs/progress/当前进度总览.md)
+- 本仓库的范围、结果与限制：[实验结果与边界](docs/experiment_results/实验结果与边界.md)
+
+## 目前状态
+
+BioSR_MT 示例图上的 P2-1～P2-5 提示可靠性与评估诊断已完成；这些结果仅限 15 张捆绑图，不支持泛化结论。独立 BioTISR 复验目前受 RawSIM→WF/GT 转换协议和逐文件映射缺失所阻，详见[当前进度](docs/progress/当前进度总览.md)与[协议审计](docs/protocol/BioTISR_协议就绪度审计.md)。
 
 ## 快速开始
 
@@ -43,7 +48,7 @@ napari
 | MT 错误先验 | 同一 15 张图 | 错误任务的损失最大；错误结构较小；仅将目标模态改为宽场的影响很小。 | 不能据此认定模型理解了全部成像语义。 |
 | CCP 字段删除 | 20 张 BioTISR_CCP 捆绑训练目录样本 | 去除任务字段的损失最大；SSIM 与其他指标出现不一致。 | 不是独立测试集，不是泛化性能。 |
 
-完整均值、配对检验、提示构造和限制见 [实验结果与边界](docs/实验结果与边界.md)。早期探索性运行保留在本地忽略目录 `experiments/`，不作为仓库主结论。
+完整均值、配对检验、提示构造和限制见 [实验结果与边界](docs/experiment_results/实验结果与边界.md)。早期探索性运行保留在本地忽略目录 `experiments/`，不作为仓库主结论。
 
 ## 复运行规范实验
 
@@ -77,7 +82,7 @@ PSNR、SSIM、MS-SSIM、ZNCC、RSP、NRMSE 与 RSE 均以对应 SIM 参考图评
 ```text
 repos/                 上游 FluoResFM 与 napari 插件子模块
 scripts/               本仓库的提示实验、评估与统计脚本
-docs/                  论文阅读材料与实验研究记录
+docs/                  文档索引、进度、计划、结果、协议与论文笔记
 example/               本地下载的上游示例资源（忽略 Git）
 experiments/           本地原始预测、指标和日志（忽略 Git）
 environment.yml        已验证的环境定义
@@ -85,8 +90,8 @@ environment.yml        已验证的环境定义
 
 ## 文档与引用
 
-- [论文速读](docs/FluoResFM_论文速读.md) · [论文精读](docs/FluoResFM_论文精读.md) · [完整翻译](docs/FluoResFM_完整翻译.md)
-- [数据、模型与许可](DATA_AND_MODELS.md) · [变更记录](CHANGELOG.md)
+- [论文速读](docs/literature/FluoResFM_论文速读.md) · [论文精读](docs/literature/FluoResFM_论文精读.md) · [完整翻译](docs/literature/FluoResFM_完整翻译.md) · [改进实验计划](docs/plans/改进实验计划.md)
+- [脚本索引](scripts/README.md) · [数据、模型与许可](DATA_AND_MODELS.md) · [变更记录](CHANGELOG.md)
 
 研究结论、方法或模型请引用原论文，而非本仓库：
 
