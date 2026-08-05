@@ -1,0 +1,20 @@
+{
+  "schema_version": "biosr-mt-train-patch-equivalence/v1",
+  "experiment_id": "preprocess-01_biosr-mt-raw-equivalence",
+  "experiment_label": "预处理实验-01",
+  "purpose": "Audit every bundled BioSR_MT training patch against patches regenerated from verified public raw MRC inputs.",
+  "input": {
+    "raw_root": "data/raw/BioSR/BioSR_MT/cells_001_040_all_levels/Microtubules",
+    "mrc_reader": "data/raw/BioTISR/Supplementary Files for BioTISR/IO_MRC_Python/read_mrc.py"
+  },
+  "reference_root": "example/data/BioSR_MT/train/channel_0",
+  "train_index": "example/data/BioSR_MT/train.txt",
+  "levels": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "normalization": {"negative_clip": 0.0, "low_percentile": 3.0, "high_percentile": 99.5},
+  "grids": [
+    {"lr_patch": 32, "lr_stride": 32, "hr_patch": 64, "hr_stride": 64},
+    {"lr_patch": 64, "lr_stride": 64, "hr_patch": 128, "hr_stride": 128}
+  ],
+  "acceptance": {"max_abs_error": 0.000001},
+  "output": "experiments/preprocess-01_biosr-mt-raw-equivalence/20260805_train_patchgrid_r1"
+}

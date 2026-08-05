@@ -1,0 +1,18 @@
+{
+  "schema_version": "biosr-mt-raw-equivalence/v1",
+  "experiment_id": "preprocess-01_biosr-mt-raw-equivalence",
+  "experiment_label": "预处理实验-01",
+  "purpose": "Audit the exact preprocessing rule from public BioSR Microtubules raw MRC files to every bundled BioSR_MT train WF_noise_level_1..9 image.",
+  "input": {
+    "raw_root": "data/raw/BioSR/BioSR_MT/cells_001_040_all_levels/Microtubules",
+    "mrc_reader": "data/raw/BioTISR/Supplementary Files for BioTISR/IO_MRC_Python/read_mrc.py",
+    "archive": "data/raw/BioSR/BioSR_MT/Microtubules.zip",
+    "archive_md5": "df983755a1b45d512b000475e3072fc7"
+  },
+  "reference_root": "example/data/BioSR_MT/train/channel_0",
+  "image_ids": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40"],
+  "levels": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "transform": "RawSIMData_level_{level:02d}.mrc read by the supplied reader; arithmetic mean along axis 2 (nine frames); no clipping, normalization, rotation, flip, or transpose; write/read as a singleton-channel TIFF.",
+  "acceptance": {"expected_shape_yx": [502, 502], "max_abs_error": 0.0},
+  "output": "experiments/preprocess-01_biosr-mt-raw-equivalence/20260805_train_all_levels_r1"
+}

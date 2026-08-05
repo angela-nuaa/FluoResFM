@@ -9,7 +9,7 @@ identical; 05_full_paraphrase rewrites all three simultaneously.
 Requires GPU for inference.  Evaluation, statistics, and plotting are done
 locally in a separate step — this script only generates predictions.
 
-See ``docs/plans/改进实验计划.md`` for the full experimental design (P2-1).
+This is the historical P2-1 implementation; consult its result document for the recorded protocol and boundary.
 """
 
 from __future__ import annotations

@@ -1,0 +1,39 @@
+{
+  "schema_version": "biosr-mt-raw-reconstruction/v1",
+  "experiment_id": "preprocess-01_biosr-mt-raw-reconstruction",
+  "experiment_label": "预处理实验-01",
+  "status": "candidate_not_frozen",
+  "purpose": "Reconstruct the bundled BioSR_MT test inputs and targets from the verified public BioSR Microtubules source files, then audit exact pixel equality. This is an external preprocessing positive control, not a BioTISR-CCP efficacy comparison.",
+  "input": {
+    "raw_root": "data/raw/BioSR/BioSR_MT/cells_041_055_level03/Microtubules",
+    "mrc_reader": "data/raw/BioTISR/Supplementary Files for BioTISR/IO_MRC_Python/read_mrc.py",
+    "archive": "data/raw/BioSR/BioSR_MT/Microtubules.zip",
+    "archive_md5": "df983755a1b45d512b000475e3072fc7",
+    "read_only": true
+  },
+  "transform": {
+    "source_level": "03",
+    "input_source_name": "RawSIMData_level_03.mrc",
+    "input_frame_axis": 2,
+    "input_aggregation": "mean",
+    "target_source_name": "SIM_gt.mrc",
+    "target_plane_index": 0,
+    "array_orientation": "reader_xy_as_written",
+    "normalization": "none"
+  },
+  "reference": {
+    "input_dir": "example/data/BioSR_MT/test/channel_0/WF_noise_level_3",
+    "target_dir": "example/data/BioSR_MT/test/channel_0/SIM",
+    "image_ids": ["41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55"]
+  },
+  "output": {
+    "root": "data/derived/biosr-mt-fluoresfm_preprocess-01/20260805_raw_reconstruction_r1",
+    "refuse_if_exists": true
+  },
+  "acceptance": {
+    "expected_input_shape_yx": [502, 502],
+    "expected_target_shape_yx": [1004, 1004],
+    "input_max_abs_error": 0.0,
+    "target_max_abs_error": 0.0
+  }
+}

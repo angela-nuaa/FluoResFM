@@ -25,6 +25,16 @@ METRICS = (
 )
 
 LABELS = {
+    "02_task_paraphrase": "Task paraphrase",
+    "03_structure_paraphrase": "Structure paraphrase",
+    "04_imaging_paraphrase": "Imaging paraphrase",
+    "05_full_paraphrase": "All paraphrased",
+    "02_wrong_target_modality": "Wrong target modality",
+    "03_wrong_target_pixel_size": "Wrong target pixel size",
+    "04_wrong_target_modality_and_pixel_size": "Both target fields wrong",
+    "02_wrong_input_modality": "Wrong input modality",
+    "03_wrong_structure": "Wrong structure",
+    "04_wrong_fluorescence_indicator": "Wrong fluorescence label",
     "02_no_task": "No task",
     "03_no_structure": "No structure",
     "04_no_imaging": "No imaging",

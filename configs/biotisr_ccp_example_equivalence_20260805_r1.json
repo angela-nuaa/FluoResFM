@@ -1,0 +1,15 @@
+{
+  "schema_version": "biotisr-ccp-example-equivalence/v1",
+  "experiment_id": "preprocess-02_biotisr-ccp-example-equivalence",
+  "experiment_label": "预处理实验-02",
+  "audit_name": "BioTISR-CCP bundled example Cell_001 原始MRC到SR微调入口一致性审计",
+  "raw_data_root": "data/raw/BioTISR/BioTISR_CCPs",
+  "mrc_reader": "data/raw/BioTISR/Supplementary Files for BioTISR/IO_MRC_Python/read_mrc.py",
+  "example_root": "example/data/BioTISR_CCP/train/channel_0",
+  "cell": "Cell_001",
+  "n_timepoints": 20,
+  "raw_frames_per_timepoint": 9,
+  "patch_normalization_percentiles": [3, 99.5],
+  "float_patch_tolerance": 1e-06,
+  "output_json": "experiments/preprocess-02_biotisr-ccp-example-equivalence/20260805_cell001_full_patch_r1/audit.json"
+}
