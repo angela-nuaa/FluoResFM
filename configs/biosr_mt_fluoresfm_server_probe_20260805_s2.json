@@ -1,0 +1,25 @@
+{
+  "schema_version": "biosr-mt-fluoresfm-server-probe/v1",
+  "experiment_id": "preprocess-03_biosr-mt-fluoresfm-inference-audit",
+  "experiment_label": "阶段3 BioSR-MT FluoResFM 推理输出审计（服务器单图探针-新版本首选）",
+  "purpose": "阶段 3 服务器单图探针（首选）：以本地 FluoResFM 固定的最新 napari-fluoresfm v0.3.4（2fded7c）配合历史 GUI 参数（sf_lr=1、batch_size=4、patch_size=256、compile=true）推理 WF_noise_level_3/41.tif，严格比对 bundled _fluoresfm 参考，检验新版本输出与官方参考是否一致。AMP 由上游 predict.py 固定为 True。",
+  "input_root": "example/data/BioSR_MT/test/channel_0/WF_noise_level_3",
+  "reference_root": "example/data/BioSR_MT/test/channel_0/WF_noise_level_3_fluoresfm",
+  "image_ids": ["41"],
+  "napari_source_root": "repos/napari-fluoresfm/src",
+  "napari_repository": "repos/napari-fluoresfm",
+  "napari_expected_revision": "2fded7c31be8c52476de89934ced9093ebe2c307",
+  "require_napari_revision_match": true,
+  "embedder_root": "example/checkpoints/biomedclip",
+  "checkpoint": "example/checkpoints/fluoresfm/epoch_0_iter_700000.pt",
+  "device": "cuda:0",
+  "scale_factor": 1,
+  "batch_size": 4,
+  "patch_size": 256,
+  "compile": true,
+  "prompt": "Task: deconvolution; sample: fixed COS-7 cell line; structure: microtubule; fluorescence indicator: mEmerald (GFP); input microscope: wide-field microscope with excitation numerical aperture (NA) of 1.35, detection numerical aperture (NA) of 1.3; input pixel size: 62.6 x 62.6 nm; target microscope: linear structured illumination microscope with excitation numerical aperture (NA) of 1.35, detection numerical aperture (NA) of 1.3; target pixel size: 62.6 x 62.6 nm.",
+  "acceptance": {
+    "numeric_tolerance": 1e-6
+  },
+  "output": "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260805_server_probe_s2"
+}

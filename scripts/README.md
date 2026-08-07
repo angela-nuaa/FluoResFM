@@ -27,6 +27,10 @@
 - `audit_biosr_mt_raw_equivalence_all_levels.py`、`audit_biosr_mt_train_patch_equivalence.py`：BioSR-MT 原始 MRC 至 bundled example 的全量像素一致性审计。
 - `audit_biotisr_ccp_example_train_equivalence.py`：从原始 MRC 端到端审计 bundled example 的完整帧与实际 SR 微调补丁入口；这是 Cell_001 一致性结论的正式复现入口。
 - `materialize_biosr_mt_example_from_raw.py`：将通过审计的 BioSR-MT 原始 MRC 复建为可供外部实验使用的 TIFF；默认拒绝覆盖。
+- `materialize_biosr_mt_verified_assets.py`：阶段 1–2 的 BioSR-MT 生产器；先冻结整个 bundled 目录基线，再在新的 `data/derived/` 目录中严格生产已审计的全图、训练 patch 与索引，默认拒绝覆盖。
+- `audit_biosr_mt_fluoresfm_inference.py`：阶段 3 的无覆盖上游推理探针；审计 `*_fluoresfm` 测试图是否可由已保存的模型、提示和 napari 推理实现重新生成。
+- `probe_biosr_mt_fluoresfm_server.py`：阶段 3 的服务器单图探针；冻结服务器环境与 napari-fluoresfm 源码/checkpoint 身份，隔离单张输入运行固定版本上游推理，逐文件判定 strict / 数值等价 / 失败，默认拒绝覆盖；执行清单见 `docs/plans/清单_阶段3_服务器单图探针.md`。
+- `sync_probe_to_server.py`：把阶段 3 探针资产（脚本、s1/s2 配置、清单文档与 napari-fluoresfm 子模块）一键推送到云端个人目录；优先 WSL rsync、回退 scp；`--include-probe-data` 传最小探针数据，`--include-data` 传完整 example；凭据不入库。
 - `run_provenance.py`：运行清单、资产哈希和 `run.md` 写入工具。
 
 ## 提交前配置检查

@@ -1,0 +1,32 @@
+{
+  "schema_version": "biosr-mt-fluoresfm-server-probe/v1",
+  "experiment_id": "preprocess-03_biosr-mt-fluoresfm-inference-audit",
+  "experiment_label": "阶段3 BioSR-MT FluoResFM 生产推理配置 v1（patch=64，质量等价标准）",
+  "purpose": "正式生产推理配置：napari-fluoresfm v0.3.4（2fded7c）+ patch_size=64。实验证据表明 bundled _fluoresfm 参考实际在 patch=64 下推理：patch=64 输出与参考 15 图平均 PSNR 48.13 dB / SSIM 0.9974（官方口径，近精确复现，最低 46.0 dB），显著优于 patch=256（42.00 dB）；且对 SIM 真值有稳定改善（官方口径 15 图模型 35.15 dB vs 输入 27.84 dB，+7.31 dB）。patch=64 下注意力矩阵小，无需 flash attention。判定标准：质量不低于 bundled 参考（近精确匹配）。",
+  "input_root": "example/data/BioSR_MT/test/channel_0/WF_noise_level_3",
+  "reference_root": "example/data/BioSR_MT/test/channel_0/WF_noise_level_3_fluoresfm",
+  "image_ids": ["41"],
+  "napari_source_root": "repos/napari-fluoresfm/src",
+  "napari_repository": "repos/napari-fluoresfm",
+  "napari_expected_revision": "2fded7c31be8c52476de89934ced9093ebe2c307",
+  "require_napari_revision_match": true,
+  "embedder_root": "example/checkpoints/biomedclip",
+  "checkpoint": "example/checkpoints/fluoresfm/epoch_0_iter_700000.pt",
+  "device": "cuda:0",
+  "scale_factor": 1,
+  "batch_size": 8,
+  "patch_size": 64,
+  "compile": false,
+  "flash_attention": false,
+  "flash_attention_note": "patch=64 下注意力矩阵小（64×64=4096 位置），无需 flash attention。v0.3.4 默认 use_flash_attention=False 即可。flash 启用与否对输出质量无影响（已验证 77 dB 内一致）。",
+  "prompt": "Task: deconvolution; sample: fixed COS-7 cell line; structure: microtubule; fluorescence indicator: mEmerald (GFP); input microscope: wide-field microscope with excitation numerical aperture (NA) of 1.35, detection numerical aperture (NA) of 1.3; input pixel size: 62.6 x 62.6 nm; target microscope: linear structured illumination microscope with excitation numerical aperture (NA) of 1.35, detection numerical aperture (NA) of 1.3; target pixel size: 62.6 x 62.6 nm.",
+  "acceptance": {
+    "criterion": "quality_parity",
+    "quality_reference": "bundled *_fluoresfm output",
+    "quality_metric": "PSNR/SSIM vs bundled 参考（官方口径：每图 P3/P99.5 归一化 → clip[0,2.5] → data_range=2.5）",
+    "validated_quality_15img": {"psnr_db": 48.133, "ssim": 0.9974, "min_psnr_db": 45.994, "min_ssim": 0.9968},
+    "official_protocol_note": "采用论文官方评估协议（4_0_result_evaluate.py：NormalizePercentile(0.03,0.995) → np.clip(0,2.5) → skimage PSNR/SSIM data_range=2.5）。此前 data_range=1.0 口径数值（40.42 dB）为过渡口径，官方口径下为 48.13 dB。",
+    "note": "15 图测试集近精确复现参考（官方口径 ≥46.0 dB / ≥0.997）；单 GPU 逐字节确定，跨 GPU 有设备级低阶位差异。"
+  },
+  "output": "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260807_production_v1_p64"
+}
