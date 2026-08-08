@@ -9,12 +9,14 @@
 - `run_mt_semantic_paraphrase.py`：P2-1 语义等价改写。
 - `run_mt_imaging_conflict_ladder.py`：P2-2 目标成像元数据冲突。
 - `run_mt_condition_field_conflicts.py`：P2-3 单字段条件冲突。
+- `run_prompt_ablation.py`：提示字段消融运行器（P2 系列）。
 
 ## 本地评估与统计
 
 - `evaluate_basic_ablation.py`：稳定的有参考基础指标。
 - `evaluate_ablation_isolated.py`：逐图隔离的 NanoPyx 指标。
 - `evaluate_prompt_ablation.py`：单图评估器。
+- `evaluate_mt_test_nearest_baseline.py`：MT 测试图最近邻基线评估。
 - `summarize_paired_ablation.py`：配对 Wilcoxon 与 Bonferroni 汇总。
 - `plot_paired_ablation.py`、`plot_prompt_ablation.py`：逐图配对图。
 
@@ -25,6 +27,7 @@
 - `plot_p2_diagnostics.py`：从既有 P2-4/P2-5 CSV 生成文档诊断图；不重新推理或评估。
 - `audit_biotisr_protocol.py`：BioTISR 工作簿与本地转换数据的就绪度审计。
 - `audit_biosr_mt_raw_equivalence_all_levels.py`、`audit_biosr_mt_train_patch_equivalence.py`：BioSR-MT 原始 MRC 至 bundled example 的全量像素一致性审计。
+- `plot_biosr_mt_preprocessing_equivalence.py`、`plot_biotisr_ccp_preprocessing_equivalence.py`：预处理实验-01/02 的图像对照生成器。
 - `audit_biotisr_ccp_example_train_equivalence.py`：从原始 MRC 端到端审计 bundled example 的完整帧与实际 SR 微调补丁入口；这是 Cell_001 一致性结论的正式复现入口。
 - `materialize_biosr_mt_example_from_raw.py`：将通过审计的 BioSR-MT 原始 MRC 复建为可供外部实验使用的 TIFF；默认拒绝覆盖。
 - `materialize_biosr_mt_verified_assets.py`：阶段 1–2 的 BioSR-MT 生产器；先冻结整个 bundled 目录基线，再在新的 `data/derived/` 目录中严格生产已审计的全图、训练 patch 与索引，默认拒绝覆盖。
@@ -36,6 +39,7 @@
 - `eval_biosr_mt_official_metrics.py`：官方口径（每图 P3/P99.5 → clip[0,2.5] → data_range=2.5）复核；含背景扣除、8/15 图、SIM 降采样方法对比。
 - `eval_biosr_mt_batch_vs_sim.py`：SIM 锚定等价验证；90 图生产候选 vs SIM 与官方参考 vs SIM 对比（CPU-only）。
 - `final_acceptance_biosr_mt.py`：全目录最终验收汇总；合并阶段 1–4 证据（基线清单 + 阶段 2 验证 + 阶段 3–4 批量 comparison），给全部 83,591 文件唯一状态并核验无遗漏/重复/排除。
+- `plot_biosr_mt_inference_evidence.py`：推理实验-01..04 的图形证据生成器（patch 设置质量对比、逐图指标、真实图像对照、全级别/SIM 锚定、最终验收状态覆盖）；读取 manifest/CSV。
 - `run_provenance.py`：运行清单、资产哈希和 `run.md` 写入工具。
 
 ## 提交前配置检查

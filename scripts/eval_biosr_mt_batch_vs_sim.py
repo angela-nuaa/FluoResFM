@@ -14,6 +14,7 @@ clip[0,2.5] → PSNR/SSIM data_range=2.5（官方 4_0_result_evaluate.py，无�
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -21,10 +22,6 @@ import numpy as np
 import skimage.io as io
 import torch
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
-
-BASE = Path("/mnt/ssd3/lc/FluoResFM")
-CH = BASE / "example/data/BioSR_MT/test/channel_0"
-CAND = BASE / "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260808_batch_production_v1/full_images"
 
 LEVELS = ["WF_noise_level_1", "WF_noise_level_2", "WF_noise_level_3", "WF_noise_level_4", "WF_noise_level_5", "WF_noise_level_7"]
 IDS = list(range(41, 56))
@@ -58,17 +55,19 @@ def ss(a: np.ndarray, b: np.ndarray) -> float:
     return float(structural_similarity(a, b, data_range=2.5))
 
 
-def main() -> None:
+def main(workspace_root: Path) -> None:
+    ch = workspace_root / "example/data/BioSR_MT/test/channel_0"
+    cand_root = workspace_root / "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260808_batch_production_v1/full_images"
     print(f"{'level':18s} {'cand_vs_sim':>12s} {'ref_vs_sim':>12s} {'delta':>7s} {'inp_vs_sim':>12s}")
     overall_c, overall_r, overall_i = [], [], []
     for level in LEVELS:
         cand_ps, ref_ps, inp_ps = [], [], []
         for i in IDS:
             name = f"{i}.tif"
-            cand = io.imread(CAND / level / name).astype(np.float32)
-            ref = io.imread(CH / f"{level}_fluoresfm" / name).astype(np.float32)
-            inp = io.imread(CH / level / name).astype(np.float32)
-            sim = io.imread(CH / "SIM" / name).astype(np.float32)
+            cand = io.imread(cand_root / level / name).astype(np.float32)
+            ref = io.imread(ch / f"{level}_fluoresfm" / name).astype(np.float32)
+            inp = io.imread(ch / level / name).astype(np.float32)
+            sim = io.imread(ch / "SIM" / name).astype(np.float32)
             sim_down = prep(avg_pool2d(sim, 2))
             cand_ps.append(ps(prep(cand), sim_down))
             ref_ps.append(ps(prep(ref), sim_down))
@@ -85,4 +84,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--workspace-root", default=Path.cwd(), type=Path, help="FluoResFM 仓库根目录")
+    args = ap.parse_args()
+    sys.exit(main(args.workspace_root))

@@ -1,5 +1,7 @@
 # BioSR-MT bundled example 全目录严格生产计划
 
+> 说明：「严格生产」= 按**质量等价**判定（参考与候选 path/shape/dtype 一致 + PSNR/SSIM 阈值），**非逐字节 SHA**（跨进程/跨 GPU 无法复现他人字节）；详见 [`推理实验-04`](../experiment_results/推理实验-04_全目录最终验收审计报告.md)。
+>
 > 状态：**已全部完成（2026-08-08）**。阶段 1–2 已完成；阶段 3–4（90 `_fluoresfm` 全图 + 735 测试 patch）与最终验收（83,591 文件唯一状态 + 中文审计报告）已完成，结论为「严格逐字节不可行、质量等价达成」，判定标准已按用户指示放宽为质量等价。审计报告见 [`推理实验-04_全目录最终验收审计报告.md`](../experiment_results/推理实验-04_全目录最终验收审计报告.md)。
 >
 > 目标：在不改写 `example/data/BioSR_MT` 的前提下，生产该 bundled example 目录中全部受审计文件，并对每个文件保留可复查的来源、配置、环境与逐文件验证证据。
@@ -9,7 +11,7 @@
 - 本计划的对象是 bundled example 的文件级生产，不是 FluoResFM 论文的完整复现，也不构成对论文数据划分、训练过程或性能结论的证明。
 - 所有候选输出写入新的 Git 忽略运行目录；`example/data/BioSR_MT` 仅作不可变参考，不覆盖、不清理、不就地生成。
 - “生产”的判定标准（阶段 3 后已放宽）：参考文件与候选文件的路径、shape、dtype 必须一致；数值层面按 **质量等价** 判定——候选 vs bundled 参考的 PSNR/SSIM 不低于阶段 3 已验证基线（官方口径，15 图 patch=64：PSNR 48.13 dB、SSIM 0.9974，最低 46.0 dB）。不得以 SHA-256 一致作为生产判定（2026-08-08 修订：同进程内逐字节确定、**跨进程/跨 GPU 有低阶位差**，无法跨进程复现他人字节；详见 [`推理实验-03`](../experiment_results/推理实验-03_官方推理实现对比与待确认项.md) §5）。
-- 阶段 3 推理结论见 [`推理实验-01_BioSR-MT_FluoResFM推理输出审计.md`](../experiment_results/推理实验-01_BioSR-MT_FluoResFM推理输出审计.md) 与 [`推理实验-03_官方推理实现对比与待确认项.md`](../experiment_results/推理实验-03_官方推理实现对比与待确认项.md)；生产配置见 `configs/biosr_mt_fluoresfm_production_v1.json`。云端运行环境与同步速查见下文「云端运行环境与同步」节。
+- 阶段 3 推理结论见 [`推理实验-01_BioSR-MT_FluoResFM参数探索与生产决策.md`](../experiment_results/推理实验-01_BioSR-MT_FluoResFM参数探索与生产决策.md) 与 [`推理实验-03_官方推理实现对比与待确认项.md`](../experiment_results/推理实验-03_官方推理实现对比与待确认项.md)；生产配置见 `configs/biosr_mt_fluoresfm_production_v1.json`。云端运行环境与同步速查见下文「云端运行环境与同步」节。
 - 每次运行必须记录输入 SHA-256、脚本与配置版本、Git commit、Python/Torch/CUDA/驱动版本、GPU 型号、随机种子（如适用）、命令、stdout/stderr 与逐文件比较结果。
 
 ## 参考基线与当前覆盖
@@ -69,20 +71,10 @@
 
 ## 云端运行环境与同步（批量生产用）
 
-- 连接：`ssh lc-Dual-4090`（`~/.ssh/config` 别名：10.123.1.95:6004、user lc、IdentityFile `~/.ssh/lc_fluoresfm`）。云端工作目录 `/mnt/ssd3/lc/FluoResFM`（即 `~/FluoResFM`，不是 `~/lc/FluoResFM`）。
-- 环境：云端 `.venv`（Python 3.10.12、torch 2.6.0+cu124、numpy 2.2.6、skimage 0.25.2）。**推理必须加离线环境变量** `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`（HF Hub 不可达，BiomedCLIP tokenizer 已缓存于 `~/.cache/huggingface`；不带会因 `get_tokenizer` 联网超时失败）。
-- 同步（探针最小集 / 完整 example，均需 `--force-scp`）：
-  ```bash
-  python scripts/sync_probe_to_server.py --host lc-Dual-4090 --user lc --port 6004 --remote-dir "~/FluoResFM" --include-probe-data --force-scp
-  python scripts/sync_probe_to_server.py --host lc-Dual-4090 --user lc --port 6004 --remote-dir "~/FluoResFM" --include-data --force-scp
-  ```
-- 运行（长任务 SSH 前台会超时被杀，用 `nohup ... &` + 轮询 `manifest.json`/`failure.json`）：
-  ```bash
-  cd /mnt/ssd3/lc/FluoResFM
-  HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 nohup .venv/bin/python scripts/probe_biosr_mt_fluoresfm_server.py \
-    --config <cfg> --workspace-root ~/FluoResFM > /tmp/run.log 2>&1 &
-  ```
-- GPU 纪律：双 RTX 4090；跑前 `nvidia-smi` 确认无其他用户进程（他人占用则暂停）；**批量生产固定在单一 GPU 上执行**（跨 GPU 有设备级低阶位差）。
+> 机器相关的连接/同步/个人路径等操作细节为个人使用，维护在 gitignored `.local/云端纪律.md`，不入库。此处只保留复现必需的非敏感要点。
+
+- 推理需离线环境变量 `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`（HF Hub 不可达，BiomedCLIP tokenizer 已缓存于云端个人目录；不带会因 `get_tokenizer` 联网超时失败）。
+- **批量生产固定在单一 GPU 上执行**（跨 GPU 有设备级低阶位差）。
 - 关键哈希（云端=本地，阶段 3 已核对）：checkpoint `epoch_0_iter_700000.pt`=`d2402bff6e52fce05e5442e96eb0a9a39623adc932c73b46ddd8998d2f452db3`；embedder `open_clip_config.json`=`9a41f334a8c444678772c0ebb9ab854c97ab350bced3a17b803e258d39c23dc0`、`open_clip_pytorch_model.bin`=`52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be`；输入 `WF_noise_level_3/41.tif`=`8c437b43b68a3281d060adc821b57566ddbaedf3f12d48fc0b67b2e4120dc202`；参考 `WF_noise_level_3_fluoresfm/41.tif`=`db01b963bd3d4de55bf43562cb79677ebcb555b283978ba11e97bc360c3f0f4b`。
 - 版本锁定：napari-fluoresfm v0.3.4（`2fded7c31be8c52476de89934ced9093ebe2c307`）；生产配置 `configs/biosr_mt_fluoresfm_production_v1.json`（patch=64、batch=8、compile=false、sf_lr=1、无 flash）。
 

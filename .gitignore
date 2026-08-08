@@ -51,6 +51,9 @@ desktop.ini
 # 日志
 *.log
 
+# 个人本地文档（不提交）
+.local/
+
 # example
 example/
 example.tar

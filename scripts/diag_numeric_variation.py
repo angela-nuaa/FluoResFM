@@ -33,7 +33,7 @@ def main() -> int:
     ap.add_argument("--double", action="store_true", help="run predict() twice in one process and compare (within-process determinism)")
     ap.add_argument("--deterministic", action="store_true", help="call torch.use_deterministic_algorithms(True) before predict")
     ap.add_argument("--benchmark-off", action="store_true", help="inject a runtime-patched predict module with cudnn.benchmark=False (never touches the source file)")
-    ap.add_argument("--workspace-root", default="/mnt/ssd3/lc/FluoResFM")
+    ap.add_argument("--workspace-root", default=Path.cwd())
     args = ap.parse_args()
 
     root = Path(args.workspace_root)

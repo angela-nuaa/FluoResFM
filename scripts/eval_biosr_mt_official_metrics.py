@@ -17,6 +17,7 @@ metrics under the official 4_0_result_evaluate.py protocol variants:
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -26,12 +27,6 @@ import skimage.restoration
 import skimage.transform
 import torch
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
-
-BASE = Path("/mnt/ssd3/lc/FluoResFM")
-CAND = BASE / "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260807_deconv15_p64"
-INP = BASE / "example/data/BioSR_MT/test/channel_0/WF_noise_level_3"
-REF = BASE / "example/data/BioSR_MT/test/channel_0/WF_noise_level_3_fluoresfm"
-SIM = BASE / "example/data/BioSR_MT/test/channel_0/SIM"
 
 IDS = list(range(41, 56))  # 41..55
 FIRST8 = IDS[:8]
@@ -123,7 +118,11 @@ def mean(xs: list[float]) -> float:
     return float(np.mean(xs))
 
 
-def main() -> None:
+def main(workspace_root: Path) -> None:
+    cand_root = workspace_root / "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260807_deconv15_p64"
+    inp_root = workspace_root / "example/data/BioSR_MT/test/channel_0/WF_noise_level_3"
+    ref_root = workspace_root / "example/data/BioSR_MT/test/channel_0/WF_noise_level_3_fluoresfm"
+    sim_root = workspace_root / "example/data/BioSR_MT/test/channel_0/SIM"
     rows: dict[str, list[float]] = {
         "cand_vs_ref_psnr": [], "cand_vs_ref_ssim": [],
         "cand_vs_sim_avgpool_psnr": [], "cand_vs_sim_avgpool_ssim": [],
@@ -139,10 +138,10 @@ def main() -> None:
 
     for i in IDS:
         name = f"{i}.tif"
-        cand = io.imread(CAND / name).astype(np.float32)
-        inp = io.imread(INP / name).astype(np.float32)
-        ref = io.imread(REF / name).astype(np.float32)
-        sim = io.imread(SIM / name).astype(np.float32)
+        cand = io.imread(cand_root / name).astype(np.float32)
+        inp = io.imread(inp_root / name).astype(np.float32)
+        ref = io.imread(ref_root / name).astype(np.float32)
+        sim = io.imread(sim_root / name).astype(np.float32)
 
         # SIM -> output resolution (official sf_hr=-2 avg_pool2d k=2)
         sim_down = avg_pool2d_t(sim, 2)
@@ -204,4 +203,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--workspace-root", default=Path.cwd(), type=Path, help="FluoResFM 仓库根目录")
+    args = ap.parse_args()
+    sys.exit(main(args.workspace_root))

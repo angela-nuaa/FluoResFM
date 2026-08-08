@@ -7,18 +7,36 @@
 - 原论文：[Lu et al., *Nature Communications* (2026)](https://doi.org/10.1038/s41467-026-70307-4)
 - 上游实现：[qiqi-lu/fluoresfm](https://github.com/qiqi-lu/fluoresfm)
 - 文档入口与当前状态：[文档索引](docs/README.md) · [当前进度](docs/progress/进度_当前总览.md)
-- 本仓库的范围、结果与限制：[早期提示探索实验（历史归档）](docs/experiment_results/历史_提示探索实验_结果与边界.md)
+
+## 术语
+
+- **bundled example**：napari 插件自带的上游示例数据（本仓库复现基准）。
+- **`_fluoresfm` 参考**：作者 FluoResFM 模型在示例上的推理输出（复现目标）。
+- **官方口径**：论文评估方法——每图 P3/P99.5（第 3/99.5 百分位）归一化 → clip[0,2.5] → PSNR/SSIM `data_range=2.5`。
+- **质量等价**：生产判定标准（非逐字节；path/shape/dtype 一致 + 官方口径指标阈值）。
 
 ## 目前状态
 
-已完成两项 bundled example 的图像预处理审计：
+已完成两项 bundled example 的预处理审计，并完成 BioSR-MT 的 FluoResFM 推理生产与全目录验收。
+
+预处理：
 
 | 实验 | 已验证范围 | 结论 |
 | --- | --- | --- |
 | [预处理实验-01](docs/experiment_results/预处理实验-01_BioSR-MT原始MRC与example一致性审计.md) | BioSR-MT 测试、训练全图及实际训练 patch | 135 张测试 WF、15 张测试 SIM、360 张训练 WF 严格相等；147,960 个 patch 在 float32 容差内一致。 |
 | [预处理实验-02](docs/experiment_results/预处理实验-02_BioTISR-CCP原始MRC与example一致性审计.md) | BioTISR-CCP bundled example 的 `Cell_001` | 60 张 WF、20 张 SIM 严格相等；256 对 SR 补丁在 float32 容差内一致。 |
 
-两者都是 bundled example 的内容级证据，不等价于论文完整训练/测试划分；其余数据的外推须逐文件审计。
+推理生产与验收（判定标准为质量等价，非逐字节；详见 [推理实验-01](docs/experiment_results/推理实验-01_BioSR-MT_FluoResFM参数探索与生产决策.md) 至 [推理实验-04](docs/experiment_results/推理实验-04_全目录最终验收审计报告.md)）：
+
+| 项 | 结论 |
+| --- | --- |
+| 生产配置 | patch=64、overlap=16、batch=8、compile=false、sf_lr=1、无 flash；15 图近精确复现 bundled 参考（官方口径 48.13 dB / 0.9974）。 |
+| 官方实现对比 | 主链路与官方 `3_0_test_it2i.py` 逐行等价；生产 prompt ≡ 官方元数据；评估口径校正（每图 P3/P99.5 → clip[0,2.5] → data_range=2.5，无背景扣除）。 |
+| 批量生产 | 90 张 `*_fluoresfm` 全图 + 735 测试 patch（质量等价）；SIM 锚定等价（90 图全级别：候选 vs SIM 34.68 ≈ 官方参考 34.63 dB）。 |
+| 全目录验收 | **83,591 文件唯一状态**：566 严格 + 82,200 数值等价 + 825 质量等价，无遗漏/重复/排除。 |
+| 确定性 | 同进程内逐字节确定、跨进程/跨 GPU 有低阶位差；可选确定性变体可跨进程逐字节复现（磁盘源码不变）。 |
+
+可复用规范见 `docs/protocol/`（预处理、提示词编写、推理生产与验收三份协议）。其中 566「严格」= 预处理字节一致资产（MRC→example），825「质量等价」= 推理输出（`_fluoresfm` 全图 + 测试 patch）。以上均为 bundled example 的内容级证据，不等价于论文完整训练/测试划分；其余数据的外推须逐文件审计。
 
 ## 快速开始
 
@@ -45,9 +63,9 @@ napari
 
 随后在 napari 中选择 `Plugins → napari-fluoresfm`。训练、命令行推理及上游评估脚本位于子模块 `repos/fluoresfm/`。
 
-## 本仓库做了什么
+## 提示敏感性实验（P2 线）
 
-所有正式记录均使用随附的规范提示文本：BioSR_MT 使用 `example/data/text/train/dataset_text_ALL.txt`，BioTISR_CCP 使用 `example/data/text/finetune/dataset_text_ALL.txt`。工作簿支持两者均为 2× 超分辨率映射，但并不提供当前 MT 测试图的逐文件元数据；因此以下是提示敏感性实验，不是论文官方测试协议或性能复现。
+这是独立于「推理生产」（见上）的另一条历史实验线。所有正式记录均使用随附的规范提示文本：BioSR_MT 使用 `example/data/text/train/dataset_text_ALL.txt`，BioTISR_CCP 使用 `example/data/text/finetune/dataset_text_ALL.txt`。工作簿支持两者均为 2× 超分辨率映射，但并不提供当前 MT 测试图的逐文件元数据；因此以下是提示敏感性实验，不是论文官方测试协议或性能复现。
 
 | 实验 | 数据范围 | 已观察到的结果 | 不能推出的结论 |
 |---|---|---|---|
@@ -79,6 +97,20 @@ python scripts/summarize_paired_ablation.py \
 ```
 
 `evaluate_ablation_isolated.py` 按图像隔离运行并支持断点续跑，以避免 NanoPyx 批量处理的资源累积。统计前应核对每个条件的图像数和文件名集合。
+
+## 复运行推理生产（BioSR-MT，质量等价）
+
+> 生产在作者的个人云端 GPU 环境运行；云端设置（连接、同步、环境）不随仓库公开。此处给出可复现的脚本入口。
+
+生产协议、参数与验收标准见 [`docs/protocol/协议_BioSR-MT推理生产与验收.md`](docs/protocol/协议_BioSR-MT推理生产与验收.md)。批量生产（90 全图 + 735 测试 patch）入口：
+
+```bash
+python scripts/produce_biosr_mt_fluoresfm_batch.py \
+  --config configs/biosr_mt_fluoresfm_batch_production_v1.json \
+  --workspace-root <FluoResFM 仓库根目录>
+```
+
+判定为质量等价（非逐字节）；跨进程逐字节复现可用确定性变体配置（`..._deterministic_v1.json`）。
 
 ## 指标解释
 
