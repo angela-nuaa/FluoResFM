@@ -1,0 +1,72 @@
+{
+  "schema_version": "biosr-mt-fluoresfm-batch-production/v1",
+  "experiment_id": "preprocess-03_biosr-mt-fluoresfm-inference-audit",
+  "experiment_label": "BioSR-MT _fluoresfm 批量生产——可选确定性变体 v1（跨进程逐字节可复现）",
+  "purpose": "与主生产相同（90 全图 + 735 patch，质量等价），但启用跨进程逐字节确定：CUBLAS_WORKSPACE_CONFIG=:4096:8 + torch.use_deterministic_algorithms(True) + 运行时注入 benchmark=False 的 predict（磁盘源码不变）。已验证 3 次全新进程 41.tif SHA 全同。可选变体，主生产保持源码干净、非确定性。",
+  "napari_source_root": "repos/napari-fluoresfm/src",
+  "napari_repository": "repos/napari-fluoresfm",
+  "napari_expected_revision": "2fded7c31be8c52476de89934ced9093ebe2c307",
+  "require_napari_revision_match": true,
+  "embedder_root": "example/checkpoints/biomedclip",
+  "checkpoint": "example/checkpoints/fluoresfm/epoch_0_iter_700000.pt",
+  "device": "cuda:0",
+  "reference_root": "example/data/BioSR_MT/test/channel_0",
+  "levels": [
+    "WF_noise_level_1",
+    "WF_noise_level_2",
+    "WF_noise_level_3",
+    "WF_noise_level_4",
+    "WF_noise_level_5",
+    "WF_noise_level_7"
+  ],
+  "image_ids": [
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51",
+    "52",
+    "53",
+    "54",
+    "55"
+  ],
+  "inference": {
+    "scale_factor": 1,
+    "batch_size": 8,
+    "patch_size": 64,
+    "compile": false,
+    "flash_attention": false,
+    "prompt": "Task: deconvolution; sample: fixed COS-7 cell line; structure: microtubule; fluorescence indicator: mEmerald (GFP); input microscope: wide-field microscope with excitation numerical aperture (NA) of 1.35, detection numerical aperture (NA) of 1.3; input pixel size: 62.6 x 62.6 nm; target microscope: linear structured illumination microscope with excitation numerical aperture (NA) of 1.35, detection numerical aperture (NA) of 1.3; target pixel size: 62.6 x 62.6 nm."
+  },
+  "patch_chain": {
+    "enabled": true,
+    "input_level": "WF_noise_level_3",
+    "reference_patch_dir": "WF_noise_level_3_fluoresfm_p64_s64_2d",
+    "patch_size": 64,
+    "stride": 64,
+    "low_percentile": 0.03,
+    "high_percentile": 0.995,
+    "negative_clip": 0.0
+  },
+  "acceptance": {
+    "official_protocol": "每图 P3/P99.5 → clip[0,2.5] → PSNR/SSIM data_range=2.5",
+    "note": "观测到跨天/跨进程运行有 ~1e-3 低阶数值差（PSNR ~0.1-0.3 dB、SSIM ~0.0003 量级），故门槛带裕度。本批观测下限：全图 PSNR 46.02 / SSIM 0.9965（level_3 53.tif）；patch 逐 patch 官方 PSNR 均值 46.02。 本变体为确定性运行。",
+    "full_image": {
+      "psnr_db_floor": 45.0,
+      "ssim_floor": 0.99,
+      "note": "带裕度（观测下限 46.02/0.9965，覆盖运行可变性）；质量等价：候选 vs bundled 参考官方口径 PSNR ≥45 dB 且 SSIM ≥0.99。"
+    },
+    "patch": {
+      "psnr_db_floor_mean": 44.0,
+      "note": "测试 patch 为派生资产（输入为生产出的 level-3 全图，与 bundled 全图差 ~48 dB 非逐字节），逐字节/数值等价本就不可达。验收为资产级：结构匹配（shape/dtype/735 数量/命名）+ 逐 patch 官方口径 PSNR 均值 ≥44 dB（观测 46.02，带裕度）；逐 patch 分布如实报告（观测 min 26.8、median ~46），不标文件级严格一致。"
+    }
+  },
+  "output": "experiments/preprocess-03_biosr-mt-fluoresfm-inference-audit/20260808_batch_production_det_v1",
+  "deterministic": true
+}

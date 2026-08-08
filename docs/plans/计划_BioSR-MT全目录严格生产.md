@@ -9,7 +9,7 @@
 - 本计划的对象是 bundled example 的文件级生产，不是 FluoResFM 论文的完整复现，也不构成对论文数据划分、训练过程或性能结论的证明。
 - 所有候选输出写入新的 Git 忽略运行目录；`example/data/BioSR_MT` 仅作不可变参考，不覆盖、不清理、不就地生成。
 - “生产”的判定标准（阶段 3 后已放宽）：参考文件与候选文件的路径、shape、dtype 必须一致；数值层面按 **质量等价** 判定——候选 vs bundled 参考的 PSNR/SSIM 不低于阶段 3 已验证基线（官方口径，15 图 patch=64：PSNR 48.13 dB、SSIM 0.9974，最低 46.0 dB）。不得以 SHA-256 一致作为生产判定（单 GPU 逐字节确定，但跨 GPU 有设备级低阶位差异，无法跨机复现他人字节）。
-- 阶段 3 详情见 `docs/plans/交接_阶段3_云端单图探针_续.md` §9；生产配置见 `configs/biosr_mt_fluoresfm_production_v1.json`。
+- 阶段 3 推理结论见 [`推理实验-01_BioSR-MT_FluoResFM推理输出审计.md`](../experiment_results/推理实验-01_BioSR-MT_FluoResFM推理输出审计.md) 与 [`推理实验-03_官方推理实现对比与待确认项.md`](../experiment_results/推理实验-03_官方推理实现对比与待确认项.md)；生产配置见 `configs/biosr_mt_fluoresfm_production_v1.json`。云端运行环境与同步速查见下文「云端运行环境与同步」节。
 - 每次运行必须记录输入 SHA-256、脚本与配置版本、Git commit、Python/Torch/CUDA/驱动版本、GPU 型号、随机种子（如适用）、命令、stdout/stderr 与逐文件比较结果。
 
 ## 参考基线与当前覆盖
@@ -66,6 +66,25 @@
 2. 对每张全图执行已发现的候选转换：非负截断、P3/P99.5 归一化、64×64 patch、stride 64；实现必须显式定义百分位计算、边界处理、dtype 与 TIFF 写入参数。
 3. 生产全部 735 个 patch，逐文件与 bundled example 比较路径、shape、dtype、数组内容和 SHA-256。
 4. 如出现仅浮点容差内一致而文件哈希不一致，记录数值等价与差异来源；不标为文件级严格一致。
+
+## 云端运行环境与同步（批量生产用）
+
+- 连接：`ssh lc-Dual-4090`（`~/.ssh/config` 别名：10.123.1.95:6004、user lc、IdentityFile `~/.ssh/lc_fluoresfm`）。云端工作目录 `/mnt/ssd3/lc/FluoResFM`（即 `~/FluoResFM`，不是 `~/lc/FluoResFM`）。
+- 环境：云端 `.venv`（Python 3.10.12、torch 2.6.0+cu124、numpy 2.2.6、skimage 0.25.2）。**推理必须加离线环境变量** `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`（HF Hub 不可达，BiomedCLIP tokenizer 已缓存于 `~/.cache/huggingface`；不带会因 `get_tokenizer` 联网超时失败）。
+- 同步（探针最小集 / 完整 example，均需 `--force-scp`）：
+  ```bash
+  python scripts/sync_probe_to_server.py --host lc-Dual-4090 --user lc --port 6004 --remote-dir "~/FluoResFM" --include-probe-data --force-scp
+  python scripts/sync_probe_to_server.py --host lc-Dual-4090 --user lc --port 6004 --remote-dir "~/FluoResFM" --include-data --force-scp
+  ```
+- 运行（长任务 SSH 前台会超时被杀，用 `nohup ... &` + 轮询 `manifest.json`/`failure.json`）：
+  ```bash
+  cd /mnt/ssd3/lc/FluoResFM
+  HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 nohup .venv/bin/python scripts/probe_biosr_mt_fluoresfm_server.py \
+    --config <cfg> --workspace-root ~/FluoResFM > /tmp/run.log 2>&1 &
+  ```
+- GPU 纪律：双 RTX 4090；跑前 `nvidia-smi` 确认无其他用户进程（他人占用则暂停）；**批量生产固定在单一 GPU 上执行**（跨 GPU 有设备级低阶位差）。
+- 关键哈希（云端=本地，阶段 3 已核对）：checkpoint `epoch_0_iter_700000.pt`=`d2402bff6e52fce05e5442e96eb0a9a39623adc932c73b46ddd8998d2f452db3`；embedder `open_clip_config.json`=`9a41f334a8c444678772c0ebb9ab854c97ab350bced3a17b803e258d39c23dc0`、`open_clip_pytorch_model.bin`=`52cc993c5c5ff962bd0c60931874bc001e7e9b41666a385530f4a036294576be`；输入 `WF_noise_level_3/41.tif`=`8c437b43b68a3281d060adc821b57566ddbaedf3f12d48fc0b67b2e4120dc202`；参考 `WF_noise_level_3_fluoresfm/41.tif`=`db01b963bd3d4de55bf43562cb79677ebcb555b283978ba11e97bc360c3f0f4b`。
+- 版本锁定：napari-fluoresfm v0.3.4（`2fded7c31be8c52476de89934ced9093ebe2c307`）；生产配置 `configs/biosr_mt_fluoresfm_production_v1.json`（patch=64、batch=8、compile=false、sf_lr=1、无 flash）。
 
 ## 最终验收
 

@@ -37,7 +37,6 @@ PROBE_FILES = [
     "scripts/probe_biosr_mt_fluoresfm_server.py",
     "scripts/sync_probe_to_server.py",
     "docs/plans/计划_BioSR-MT全目录严格生产.md",
-    "docs/plans/清单_阶段3_服务器单图探针.md",
 ]
 
 SUBMODULE_DIR = "repos/napari-fluoresfm"
