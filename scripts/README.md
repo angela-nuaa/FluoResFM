@@ -35,6 +35,7 @@
 - `diag_numeric_variation.py`：确定性诊断；跨进程/同进程逐字节复现实验，`--benchmark-off`（运行时注入，不落盘）、`--double`（同进程两次）、`--deterministic`（强制确定性算法）。
 - `eval_biosr_mt_official_metrics.py`：官方口径（每图 P3/P99.5 → clip[0,2.5] → data_range=2.5）复核；含背景扣除、8/15 图、SIM 降采样方法对比。
 - `eval_biosr_mt_batch_vs_sim.py`：SIM 锚定等价验证；90 图生产候选 vs SIM 与官方参考 vs SIM 对比（CPU-only）。
+- `final_acceptance_biosr_mt.py`：全目录最终验收汇总；合并阶段 1–4 证据（基线清单 + 阶段 2 验证 + 阶段 3–4 批量 comparison），给全部 83,591 文件唯一状态并核验无遗漏/重复/排除。
 - `run_provenance.py`：运行清单、资产哈希和 `run.md` 写入工具。
 
 ## 提交前配置检查
