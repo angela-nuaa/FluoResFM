@@ -13,6 +13,7 @@ from check_config_path_policy import validate_config
 
 
 LINK_RE = re.compile(r"!?(?:\[[^\]]*\])\(([^)]+)\)")
+EXTERNALIZED_ROOTS = {"data", "experiments", "outputs"}
 
 
 def local_link_errors(root: Path) -> list[str]:
@@ -29,7 +30,17 @@ def local_link_errors(root: Path) -> list[str]:
             target = match.group(1).split("#", 1)[0].strip("<>")
             if not target or "://" in target or target.startswith(("mailto:", "#")):
                 continue
-            if not (document.parent / target).exists():
+            candidate = (document.parent / target).resolve()
+            try:
+                relative = candidate.relative_to(root)
+            except ValueError:
+                relative = None
+            # Raw inputs and generated run artifacts are intentionally excluded
+            # from Git. Documentation may link to their expected local paths;
+            # validate those links only in an asset-bearing run, not in CI.
+            if relative is not None and relative.parts and relative.parts[0] in EXTERNALIZED_ROOTS:
+                continue
+            if not candidate.exists():
                 errors.append(f"{document.relative_to(root)}: 失效本地链接 {target}")
     return errors
 
