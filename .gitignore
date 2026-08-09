@@ -17,6 +17,11 @@ data/
 experiments/
 outputs/
 results/
+# Publish only compact, machine-readable result indexes. Raw result folders,
+# TIFF files and per-file metrics remain ignored.
+!results/
+!results/README.md
+!results/*.summary.json
 runs/
 wandb/
 
@@ -57,6 +62,10 @@ desktop.ini
 # example
 example/
 example.tar
+
+# Local asset provenance may include private download locations or notes. Keep
+# the tracked example manifest in assets/manifest.local.example.json instead.
+assets/manifest.local.json
 
 # Local cloud-operation helpers may contain machine-specific connection details.
 # Keep credentials in a user-managed secret store, never in this repository.

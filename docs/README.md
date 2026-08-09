@@ -24,6 +24,7 @@
 
 ## 协议与数据
 
+- [可复现性与验收边界](REPRODUCIBILITY.md)：从零安装、资产校验、环境升级与证据范围。
 - [预处理协议](protocol/协议_预处理.md)：原始 MRC → bundled example 全图/训练 patch 变换规则。
 - [提示词编写协议](protocol/协议_提示词编写.md)：8 字段模板、逐字段规则、词汇表与避坑。
 - [BioSR-MT 推理生产与验收协议](protocol/协议_BioSR-MT推理生产与验收.md)：评估口径、生产配置、验收标准、确定性约定。

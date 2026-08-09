@@ -1,42 +1,17 @@
-# FluoResFM 环境配置
-# 使用方式: conda env create -f environment.yml
+# FluoResFM 基础运行环境（Python 3.12 + CUDA 12.4）。
+#
+# 创建后必须运行 ``python scripts/doctor.py``。该命令会检查子模块、运行时
+# 依赖和（可选的）本地资产；它比“环境创建成功”更接近可复现的定义。
+# flash-attn 不在默认环境中：当前冻结的 BioSR-MT 生产配置明确使用
+# ``flash_attention: false``。如确有需要，见 requirements/optional-linux.txt。
 name: fluoresfm
 channels:
+  - conda-forge
   - pytorch
   - nvidia
-  - conda-forge
   - nodefaults
 dependencies:
-  # Python 版本锁定
-  - python=3.11.9
-
-  # PyTorch 2.6.0 + CUDA 12.4
-  # 注意: 实际通过 pip 安装 PyTorch 官方 CUDA 12.4 wheel
-  # pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
-
-  # 数据处理
-  - numpy
-  - pandas
-  - scipy
-  - scikit-image
-  - tifffile
-  - openpyxl
-  - pydicom
-
-  # 可视化 & 日志
-  - matplotlib
-  - seaborn
-  - tensorboard
-  - tqdm
-
-  # HuggingFace 生态（BiomedCLIP 需要）
-  - transformers
-  - huggingface_hub
-
-  # pip 安装的包（open_clip_torch / flash-attn 等在 conda 源里没有）
+  - python=3.12
   - pip
   - pip:
-    - open_clip_torch
-    - flash-attn
-    - cellpose
-    - nellie
+    - -r requirements/runtime-cu124-py312.txt

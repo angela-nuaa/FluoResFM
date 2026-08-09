@@ -1,0 +1,5 @@
+# Optional acceleration only. The frozen BioSR-MT production configuration does
+# not use FlashAttention. Install this manually *after* the runtime environment
+# and only on a supported Linux/CUDA compiler stack.
+#
+# pip install --no-build-isolation flash-attn

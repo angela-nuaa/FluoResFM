@@ -2,6 +2,13 @@
 
 本目录暂不按子目录移动脚本：部分运行脚本直接导入同目录的 `run_provenance.py`，保留现有路径可避免影响本地和云端命令。
 
+## 先运行诊断
+
+- `doctor.py`：检查冻结的子模块提交、直接运行依赖，以及可选的资产档案哈希和
+  BioSR-MT 生产输入；只读，不下载、不覆盖。
+- `check_repository.py`：检查受本仓库维护的 Markdown 本地链接、JSON 配置和结果索引；
+  在 CI 中运行，不需要 GPU 或私有资产。
+
 ## 推理编排（GPU）
 
 - `run_mt_field_ablation.py`、`run_ccp_field_ablation.py`：既有字段删除。

@@ -1,0 +1,24 @@
+{
+  "schema_version": "fluoresfm-result-summary/v1",
+  "status": "reported-not-independently-recomputable-from-this-git-tree",
+  "experiment_id": "preprocess-03_biosr-mt-fluoresfm-inference-audit",
+  "scope": "BioSR-MT bundled example only; not the paper's full training or testing split.",
+  "configuration": {
+    "path": "configs/biosr_mt_fluoresfm_batch_production_v1.json",
+    "sha256": "e8bc1293a56de2e66c34eb4dd69dce45b10a8547026c98ab5e2be7c1ea005a30",
+    "napari_fluoresfm_revision": "2fded7c31be8c52476de89934ced9093ebe2c307",
+    "fluoresfm_revision": "00de5da023277a8f62fbb99db42a9364681ba997"
+  },
+  "reported_outcomes": {
+    "full_images": 90,
+    "derived_test_patches": 735,
+    "full_image_acceptance": "official-protocol PSNR >= 45 dB and SSIM >= 0.99 against bundled reference",
+    "patch_acceptance": "mean official-protocol PSNR >= 44 dB",
+    "reported_sim_anchor_psnr_db": 34.68
+  },
+  "evidence": {
+    "human_readable_report": "docs/experiment_results/推理实验-04_全目录最终验收审计报告.md",
+    "raw_tiffs_and_per_file_csv": "not versioned; see DATA_AND_MODELS.md",
+    "recomputation_command": "python scripts/produce_biosr_mt_fluoresfm_batch.py --config configs/biosr_mt_fluoresfm_batch_production_v1.json --workspace-root ."
+  }
+}

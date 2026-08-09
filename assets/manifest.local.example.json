@@ -1,0 +1,24 @@
+{
+  "schema_version": "fluoresfm-assets/v1",
+  "purpose": "Copy to assets/manifest.local.json and fill the archive hashes from the source record before unpacking.",
+  "resources": [
+    {
+      "id": "zenodo-example-data",
+      "source": "https://doi.org/10.5281/zenodo.18382702",
+      "archive_filename": "<fill-from-zenodo-record>",
+      "archive_path": "downloads/<fill-from-zenodo-record>",
+      "sha256": null,
+      "extract_to": "example/data",
+      "required_by": ["biosr-mt-batch-production"]
+    },
+    {
+      "id": "zenodo-fluoresfm-and-biomedclip-weights",
+      "source": "https://doi.org/10.5281/zenodo.18382702",
+      "archive_filename": "<fill-from-zenodo-record>",
+      "archive_path": "downloads/<fill-from-zenodo-record>",
+      "sha256": null,
+      "extract_to": "example/checkpoints",
+      "required_by": ["biosr-mt-batch-production"]
+    }
+  ]
+}

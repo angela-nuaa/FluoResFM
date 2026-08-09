@@ -6,7 +6,7 @@
 
 - 原论文：[Lu et al., *Nature Communications* (2026)](https://doi.org/10.1038/s41467-026-70307-4)
 - 上游实现：[qiqi-lu/fluoresfm](https://github.com/qiqi-lu/fluoresfm)
-- 文档入口与当前状态：[文档索引](docs/README.md) · [当前进度](docs/progress/进度_当前总览.md)
+- 文档入口与当前状态：[文档索引](docs/README.md) · [当前进度](docs/progress/进度_当前总览.md) · [可复现性与验收边界](docs/REPRODUCIBILITY.md)
 
 ## 术语
 
@@ -40,28 +40,32 @@
 
 ## 快速开始
 
-在 WSL2 或 Linux 中：
+在 WSL2 或 Linux 中（CUDA 12.4）：
 
 ```bash
+git clone --recurse-submodules <repository-url> FluoResFM
+cd FluoResFM
+git submodule update --init --recursive
 conda env create -f environment.yml
 conda activate fluoresfm
-pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 \
-  --index-url https://download.pytorch.org/whl/cu124
-
-cd repos/fluoresfm
-python 0_7_test_model.py
+pip install -e repos/napari-fluoresfm --no-deps
+python scripts/doctor.py
 ```
 
-预训练权重和示例数据不随 Git 分发。下载来源、目录和许可见 [DATA_AND_MODELS.md](DATA_AND_MODELS.md)。
+这一步只建立并诊断运行环境，不下载任何资产。预训练权重和示例数据不随 Git
+分发；下载、归档 SHA-256 与解压后路径校验见 [DATA_AND_MODELS.md](DATA_AND_MODELS.md)
+和 [可复现性与验收边界](docs/REPRODUCIBILITY.md)。资产准备好后执行
+`python scripts/doctor.py --assets --production`，再运行相应生产命令。
 
 交互式推理可使用 napari：
 
 ```bash
-pip install napari-fluoresfm
 napari
 ```
 
-随后在 napari 中选择 `Plugins → napari-fluoresfm`。训练、命令行推理及上游评估脚本位于子模块 `repos/fluoresfm/`。
+随后在 napari 中选择 `Plugins → napari-fluoresfm`。上述开发安装固定使用仓库子模块；
+若只想体验上游发布版，可另建环境后执行 `pip install napari-fluoresfm`，但它不保证
+与本仓库的冻结生产配置一致。训练、命令行推理及上游评估脚本位于子模块 `repos/fluoresfm/`。
 
 ## 提示敏感性实验（P2 线）
 
@@ -102,6 +106,10 @@ python scripts/summarize_paired_ablation.py \
 
 > 生产在作者的个人云端 GPU 环境运行；云端设置（连接、同步、环境）不随仓库公开。此处给出可复现的脚本入口。
 
+该入口需要本地 CUDA GPU、已校验的下载资产和两个固定子模块；它不会让没有资产的
+Git checkout 自行重算既有结论。已提交的机器可读结论索引见
+[`results/biosr-mt-production-v1.summary.json`](results/biosr-mt-production-v1.summary.json)。
+
 生产协议、参数与验收标准见 [`docs/protocol/协议_BioSR-MT推理生产与验收.md`](docs/protocol/协议_BioSR-MT推理生产与验收.md)。批量生产（90 全图 + 735 测试 patch）入口：
 
 ```bash
@@ -125,6 +133,9 @@ docs/                  文档索引、进度、计划、结果、协议与论文
 example/               本地下载的上游示例资源（忽略 Git）
 experiments/           本地原始预测、指标和日志（忽略 Git）
 environment.yml        已验证的环境定义
+requirements/          直接依赖约束与可选加速依赖
+assets/                本地下载资产的可审阅清单模板
+results/               机器可读的结论索引（不含原始 TIFF/逐文件 CSV）
 ```
 
 ## 文档与引用
