@@ -56,6 +56,8 @@ python scripts/doctor.py
 分发；下载、归档 SHA-256 与解压后路径校验见 [DATA_AND_MODELS.md](DATA_AND_MODELS.md)
 和 [可复现性与验收边界](docs/REPRODUCIBILITY.md)。资产准备好后执行
 `python scripts/doctor.py --assets --production`，再运行相应生产命令。
+环境包含 `PyQt5`：虽批量入口不打开 GUI，但冻结的 napari 插件在导入预测器时会
+加载 Qt widget，缺少 Qt 后端会导致命令行生产在启动时失败。
 
 交互式推理可使用 napari：
 

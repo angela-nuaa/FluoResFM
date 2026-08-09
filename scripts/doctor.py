@@ -34,6 +34,7 @@ RUNTIME_MODULES = (
     "transformers",
     "pytorch_msssim",
     "nanopyx",
+    "PyQt5",
 )
 PRODUCTION_PATHS = (
     "example/checkpoints/fluoresfm/epoch_0_iter_700000.pt",

@@ -27,4 +27,8 @@ nanopyx==2.1.4
 napari==0.8.0
 magicgui==0.10.2
 qtpy==2.4.3
+# ``napari-fluoresfm`` imports Qt widgets even when its predictor is used from
+# the batch CLI.  qtpy alone is only an abstraction and provides no backend.
+# This PyQt5 release is also the backend of the previously working cloud env.
+PyQt5==5.15.11
 torchinfo==1.8.0
